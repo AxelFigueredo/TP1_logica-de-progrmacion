@@ -13,6 +13,7 @@ function tieneMasRecursos(int $a, int $b): bool {
   }
   return false;
 }
+
 echo tieneMasRecursos(2,6) ? "true" : "false" . "\n";
 echo tieneMasRecursos(6,2) ? "true" : "false" . "\n";
 // PROPÓSITO: Indica si la línea de producción $a tiene más recursos que la línea de producción $b.
@@ -124,4 +125,48 @@ echo implode(",", lineasEnCrecimiento([1,3,4,2,5,6,8,3,10])) . "\n";
 // producción como punto de partida.
 // PRECONDICIÓN: $lineasDeProduccion no es vacía
 // EJEMPLO: lineasEnCrecimiento([1,3,4,2,5,6,8,3,10]) = [1,3,4,5,6,8,10]
+
+function procesarEnCadena(int $x, int $ciclos, callable $proceso, int $valorInicial): int {
+    $resultado = $valorInicial;
+    for ($i = 0; $i < $ciclos; $i++) {
+        $resultado = $proceso($x, $resultado);
+    }
+    return $resultado;
+}
+
+$proceso = function(int $valor, int $acumulado): int {
+    return sumarRecursos($acumulado, $valor);
+};
+
+echo procesarEnCadena(2, 4, $proceso, 5) . "\n";
+// PROPÓSITO: Devuelve el resultado acumulado tras aplicar un proceso de la fábrica a lo
+// largo de múltiples ciclos
+function produccionEnParaleloHOF(int $y, int $lineasDeProduccion, callable $proceso2): int {
+    $total = 0;
+    for ($i = 0; $i < $lineasDeProduccion; $i++) {
+        $total = $proceso2($y, $total);
+    }
+    return $total;
+}
+$proceso2 = function(int $cantidad, int $total): int {
+    return sumarRecursos($cantidad, $total);
+};
+echo produccionEnParaleloHOF(5, 2, $proceso2) . "\n";
+echo produccionEnParaleloHOF(5, 0, $proceso2) . "\n";
+
+function produccionEnReplicadaHOF(int $z, int $lineasDeProduccion, callable $proceso2): int {
+    $total = 1;
+    for ($i = 0; $i < $lineasDeProduccion; $i++) {
+        $total = $proceso2($total, $z);
+    }
+    return $total;
+}
+$proceso2 = function(int $cantidad, int $total): int {
+    return sumarRecursos($cantidad, $total);
+};
+echo produccionEnReplicadaHOF(2, 3, $proceso2) . "\n";
+echo produccionEnReplicadaHOF(3, 0, $proceso2) . "\n";
+//Redefinir las funciones produccionEnParalelo y produccionReplicada con los nombres
+//produccionEnParaleloHOF y produccionReplicadaHOF utilizando la función generalizada.
+
 ?>
